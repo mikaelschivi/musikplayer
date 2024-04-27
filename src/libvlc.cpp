@@ -50,7 +50,7 @@ int Audio::pause()
 int Audio::get_time()
 {
     // return 0;
-    return libvlc_media_event_manager (e);
+    return  libvlc_media_player_get_length (mp);
 }
 
 int Audio::get_duration()
