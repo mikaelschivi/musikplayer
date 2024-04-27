@@ -1,46 +1,40 @@
-#pragma once
-#include <iostream>
-#include <fstream>
-// #include <string>
+#include "./headers/filehandle.h"
 
 using namespace std;
 
-namespace File
+char* File::readBinaryFile(const std::string& filePath, const int byteAmount)
 {
-    char* readBinaryFile(const std::string& filePath, const int byteAmount)
-    {
-        std::ifstream byteStream(filePath, std::ios::binary);
+    std::ifstream byteStream(filePath, std::ios::binary);
 
-        if (!byteStream.good()){
-            cerr << "Can`t open " << filePath << " file" << endl;
-            return nullptr;
-        }
-
-        char* buffer = new char[byteAmount];
-        byteStream.read(buffer, byteAmount);
-        byteStream.close();
-
-        return buffer;
+    if (!byteStream.good()){
+        cerr << "Can`t open " << filePath << " file" << endl;
+        return nullptr;
     }
 
-    void deleteData(char* data)
-    {
-        delete[] data;
-    }
+    char* buffer = new char[byteAmount];
+    byteStream.read(buffer, byteAmount);
+    byteStream.close();
 
-    void printBinaryFromData(char* data, int amountOfBytes)
-    {
-        if (!data) {
-            std::cerr << "data is fucked" << endl;
-        }
-        for (int i = 0; i < amountOfBytes; ++i) {
-            for (int j = 7; j >= 0; --j) {
-                std::cout << ((data[i] >> j) & 1);
-            }
-            std::cout << " ";
-            if ((i + 1) % 16 == 0)
-                std::cout << "| " << (i+1)/16 << std::endl;
-        }
-        std::cout << std::endl << "addr: "<< &data << std::endl;
+    return buffer;
+}
+
+void File::deleteData(char* data)
+{
+    delete[] data;
+}
+
+void File::printBinaryFromData(char* data, int amountOfBytes)
+{
+    if (!data) {
+        std::cerr << "data is fucked" << endl;
     }
+    for (int i = 0; i < amountOfBytes; ++i) {
+        for (int j = 7; j >= 0; --j) {
+            std::cout << ((data[i] >> j) & 1);
+        }
+        std::cout << " ";
+        if ((i + 1) % 16 == 0)
+            std::cout << "| " << (i+1)/16 << std::endl;
+    }
+    std::cout << std::endl << "addr: "<< &data << std::endl;
 }
