@@ -103,19 +103,27 @@ int Imgui::run()
             }
             
             if (old_time != time) audio.update_time(time);
-        
-            ImGui::Text("%.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
+
             ImGui::End();
         }
         
         if (statsWindow)
-        {
+        {   
+            int volume = audio.get_volume();
+            int old_volume = volume;
+
             ImGui::Begin("Stats", &statsWindow);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
             ImGui::Text("name: %c", audio.get_name());
             ImGui::Text("duration: %im%i", audio.minFromMilli(length),audio.secFromMilli(length));
 
+            ImGui::SliderInt("volume", &volume, 0, 100);
+
             if (ImGui::Button("Close"))
                 statsWindow = false;
+
+            if (old_volume != volume) audio.set_volume(volume);
+
+            ImGui::Text("%.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
             ImGui::End();
         }
 

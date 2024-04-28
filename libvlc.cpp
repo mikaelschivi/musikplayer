@@ -91,6 +91,17 @@ int Audio::get_name()
     return 'a';
 }
 
+int Audio::get_volume()
+{
+    return libvlc_audio_get_volume(mp);
+}
+
+int Audio::set_volume(int value)
+{
+    return libvlc_audio_set_volume(mp, value);
+}
+
+
 void Audio::cleanup()
 {
     libvlc_release(pEngine);

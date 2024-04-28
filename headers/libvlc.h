@@ -15,9 +15,15 @@ public:
     int play(const char* filename);
     int stop();
     int pause();
+
     int get_time();
     int get_duration();
-    int get_name();
     int update_time(int newTime);
+    
+    int get_name();
+    
+    int get_volume();
+    int set_volume(int value);
+
     void cleanup();
 };
