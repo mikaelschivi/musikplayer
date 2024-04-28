@@ -11,7 +11,7 @@
 #include "libvlc.h"
 
 #define WINDOW_W 640
-#define WINDOW_H 360
+#define WINDOW_H 480
 
 class Imgui
 {

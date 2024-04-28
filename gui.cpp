@@ -1,4 +1,5 @@
 #include "./headers/gui.h"
+#include <cmath>
 
 using namespace std;
 
@@ -23,8 +24,12 @@ int Imgui::run()
     SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
-    SDL_WindowFlags window_flags = (SDL_WindowFlags)(SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
-    SDL_Window* window = SDL_CreateWindow("musikplayer", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1280, 720, window_flags);
+    SDL_WindowFlags window_flags = (SDL_WindowFlags)
+                                   (SDL_WINDOW_OPENGL | 
+                                   SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
+    SDL_Window* window = SDL_CreateWindow("musikplayer", 
+                            SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 
+                            WINDOW_W, WINDOW_H, window_flags);
     if (window == nullptr)
     {
         printf("Error: SDL_CreateWindow(): %s\n", SDL_GetError());
@@ -33,25 +38,25 @@ int Imgui::run()
     SDL_GLContext gl_context = SDL_GL_CreateContext(window);
     SDL_GL_MakeCurrent(window, gl_context);
     SDL_GL_SetSwapInterval(1); // Enable vsync
-    printf("Setup SDL_GL: ok\n");
+    printf("SDL_GL Setup: ok\n");
 
     // IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO(); (void)io;
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
     ImGui::StyleColorsDark();
-
+    
     ImFont* font = io.Fonts->AddFontFromFileTTF("font/Roboto-Regular.ttf", 16.0f, nullptr);
     IM_ASSERT(font != nullptr);
+    printf("ImGui: ok\n");
 
     // Setup Platform/Renderer backends
     ImGui_ImplSDL2_InitForOpenGL(window, gl_context);
     ImGui_ImplOpenGL2_Init();
-
-    ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+    printf("ImGui_Impl: ok\n");
 
     bool statsWindow = false;
-
+    
     // main loop
     bool done = false;
     while (!done)
@@ -76,8 +81,9 @@ int Imgui::run()
         const char* song = "music_sample/techno.mp3";
         {   
             ImGui::Begin("1");
-            ImGui::Text("%.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
             
+            // if (ImGui::Button("test")) ImVec4 clear_color = ImVec4( 0.f, 0.f, 0.f, 1.00f);
+
             if (ImGui::Button("play"))
                 audio.play(song);
             if (ImGui::Button("stop"))
@@ -98,6 +104,7 @@ int Imgui::run()
             
             if (old_time != time) audio.update_time(time);
         
+            ImGui::Text("%.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
             ImGui::End();
         }
         
@@ -112,10 +119,12 @@ int Imgui::run()
             ImGui::End();
         }
 
+        // glWindow background color
+        ImVec4 clear_color = ImVec4 (0.12f, 0.12f, 0.12f, 1.00f);
         // Rendering
         ImGui::Render();
         glViewport(0, 0, WINDOW_W, WINDOW_H);
-        glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w);
+        glClearColor(clear_color.x, clear_color.y, clear_color.z, clear_color.w);
         glClear(GL_COLOR_BUFFER_BIT);
         ImGui_ImplOpenGL2_RenderDrawData(ImGui::GetDrawData());
         SDL_GL_SwapWindow(window);
