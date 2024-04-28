@@ -18,8 +18,17 @@ ifeq ($(UNAME_S), Linux) #LINUX
 	CXXFLAGS += `sdl2-config --cflags`
 endif
 
+BUILT_MESSAGE =
+ifeq ($(DEBUG), 1)
+	BUILT_MESSAGE = "[DEBUG]"
+	CXXFLAGS += -g -O0
+else
+	BUILT_MESSAGE = "[RELEASE]"
+	CXXFLAGS += -O2
+endif
+
 final: $(EXE)
-	@echo "build complete for $(ECHO_UNAME)."
+	@echo "$(BUILT_MESSAGE) build complete for $(ECHO_UNAME)."
 
 %.o:%.cpp
 	$(CXX) $(CXXFLAGS) -c -o $@ $<

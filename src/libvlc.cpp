@@ -7,7 +7,7 @@ libvlc_media_t* m;
 libvlc_media_player_t* mp;
 libvlc_event_manager_t* e;
 
-bool is_trackLoaded = false;
+bool Audio::is_trackLoaded = false;
 
 int Audio::play(const char* filename)
 {
@@ -27,12 +27,12 @@ int Audio::play(const char* filename)
 
 int Audio::stop()
 {
+    is_trackLoaded = false;
     if (!libvlc_media_player_is_playing(mp))
     {
         printf("no media playing in mediaplayer\n");
         return 0;
     }
-
     libvlc_media_player_stop (mp);
     libvlc_media_player_release (mp);
     return 0;
@@ -49,13 +49,36 @@ int Audio::pause()
 
 int Audio::get_time()
 {
-    // return 0;
-    return  libvlc_media_player_get_length (mp);
+    if (is_trackLoaded)
+        return libvlc_media_player_get_time (mp);
+    return 0;
 }
 
 int Audio::get_duration()
 {
-    return libvlc_media_get_duration (m);
+    if (is_trackLoaded)
+        return libvlc_media_player_get_length (mp);
+    if (libvlc_media_player_get_length (mp) > -1)
+        is_trackLoaded = true;
+    return 0;
+}
+
+int Audio::update_time(int newTime)
+{   if(get_duration() == -1)
+        return 0;
+
+    int oldtime = libvlc_media_player_get_time (mp);
+
+    if (newTime != oldtime && oldtime != -1)
+    {
+        libvlc_media_player_set_time (mp, newTime);
+    }
+    return oldtime;
+}
+
+int Audio::get_name()
+{
+    return 'a';
 }
 
 void Audio::cleanup()

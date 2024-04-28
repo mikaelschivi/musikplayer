@@ -50,9 +50,10 @@ int Imgui::run()
 
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
-    bool done = false;
-    
+    bool statsWindow = false;
+
     // main loop
+    bool done = false;
     while (!done)
     {
         SDL_Event event;
@@ -69,18 +70,45 @@ int Imgui::run()
         ImGui_ImplSDL2_NewFrame();
         ImGui::NewFrame();
         // 2. Show a simple window that we create ourselves. We use a Begin/End pair to create a named window.
+        int time = 0;
+        int old_time = time;
+        int length = 0;
+        const char* song = "ex/edm.mp3";
         {   
-            int currentSongTime = audio.get_time();
             ImGui::Begin("1");
             ImGui::Text("%.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
             
             if (ImGui::Button("play"))
-                audio.play("ex/edm.mp3");
+                audio.play(song);
             if (ImGui::Button("stop"))
                 audio.stop();
             
-            ImGui::SliderInt("playing...", &currentSongTime, 0, audio.get_time());
+            if (Audio::is_trackLoaded)
+            {
+                time = audio.get_time();
+                old_time = time;
+                length = audio.get_duration();
+            }
+
+            ImGui::SliderInt("track", &time, 0, length);
+            if (length > 0)
+            {
+                ImGui::Checkbox("Item metadata", &statsWindow);
+            }
+            
+            if (old_time != time) audio.update_time(time);
         
+            ImGui::End();
+        }
+        
+        if (statsWindow)
+        {
+            ImGui::Begin("Stats", &statsWindow);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
+            ImGui::Text("name: %c", audio.get_name());
+            ImGui::Text("duration: %i", audio.get_duration());
+
+            if (ImGui::Button("Close"))
+                statsWindow = false;
             ImGui::End();
         }
 
