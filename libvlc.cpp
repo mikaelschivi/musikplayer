@@ -9,6 +9,16 @@ libvlc_event_manager_t* e;
 
 bool Audio::is_trackLoaded = false;
 
+int Audio::secFromMilli(libvlc_time_t milliseconds)
+{
+    return (milliseconds / 1000) % 60;
+}
+
+int Audio::minFromMilli(libvlc_time_t milliseconds)
+{
+    return (milliseconds / (1000 * 60)) % 60;
+}
+
 int Audio::play(const char* filename)
 {
     if (is_trackLoaded && libvlc_media_player_is_playing (mp)) {
