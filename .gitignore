@@ -1,6 +1,7 @@
-*data*
 .vscode
 things
 app
 imgui.ini
-music_sample
+cool
+*.o
+# music_sample

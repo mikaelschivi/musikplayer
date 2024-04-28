@@ -41,7 +41,7 @@ int Imgui::run()
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
     ImGui::StyleColorsDark();
 
-    ImFont* font = io.Fonts->AddFontFromFileTTF("font/Inter.ttf", 16.0f, nullptr);
+    ImFont* font = io.Fonts->AddFontFromFileTTF("font/Roboto-Regular.ttf", 16.0f, nullptr);
     IM_ASSERT(font != nullptr);
 
     // Setup Platform/Renderer backends
@@ -73,7 +73,7 @@ int Imgui::run()
         int time = 0;
         int old_time = time;
         int length = 0;
-        const char* song = "ex/edm.mp3";
+        const char* song = "music_sample/techno.mp3";
         {   
             ImGui::Begin("1");
             ImGui::Text("%.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
