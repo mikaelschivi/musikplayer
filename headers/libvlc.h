@@ -1,29 +1,38 @@
 #pragma once
 
 #include <vlc/vlc.h>
+#include <iostream>
+#include <ostream>
+
+// class Media
+// {
+// public:
+//     const char* GetMediaName();
+// };
 
 class Audio
 {
-private:
-
 public:
     static bool is_trackLoaded;
 
-    int secFromMilli(libvlc_time_t milliseconds);
-    int minFromMilli(libvlc_time_t milliseconds);
+    static int SecFromMilli(libvlc_time_t milliseconds);
+    static int MinFromMilli(libvlc_time_t milliseconds);
 
-    int play(const char* filename);
-    int stop();
-    int pause();
+    static int Play(const char* filename);
+    static void Pause();
 
-    int get_time();
-    int get_duration();
-    int update_time(int newTime);
+    static int GetMediaLoadState();
+    static int GetMediaTimeMs();
+    static int GetMediaDurationMs();
+    static const char* GetMediaName();
+    static char* GetAudioDeviceInfo();
+    static int GetVolume();
     
-    int get_name();
-    
-    int get_volume();
-    int set_volume(int value);
+    static int SetMediaTimeMs(int newTime);
+    static int SetVolume(int value);
 
-    void cleanup();
+    static void Cleanup();
+private:
+    static const char* title;
+
 };

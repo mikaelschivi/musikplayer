@@ -3,8 +3,6 @@
 
 using namespace std;
 
-Audio audio;
-
 int Imgui::run()
 {   
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_GAMECONTROLLER) != 0)
@@ -25,8 +23,8 @@ int Imgui::run()
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
     SDL_WindowFlags window_flags = (SDL_WindowFlags)
-                                   (SDL_WINDOW_OPENGL | 
-                                   SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
+                    (SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
+    
     SDL_Window* window = SDL_CreateWindow("musikplayer", 
                             SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 
                             WINDOW_W, WINDOW_H, window_flags);
@@ -55,6 +53,9 @@ int Imgui::run()
     ImGui_ImplOpenGL2_Init();
     printf("ImGui_Impl: ok\n");
 
+    ImGuiWindowFlags w = ImGuiWindowFlags_NoTitleBar;
+    w = w | ImGuiWindowFlags_NoResize;
+
     bool statsWindow = false;
     
     // main loop
@@ -80,50 +81,51 @@ int Imgui::run()
         int length = 0;
         const char* song = "music_sample/techno.mp3";
         {   
-            ImGui::Begin("1");
-            
-            // if (ImGui::Button("test")) ImVec4 clear_color = ImVec4( 0.f, 0.f, 0.f, 1.00f);
-
+            ImGui::Begin("media", NULL, w);
             if (ImGui::Button("play"))
-                audio.play(song);
-            if (ImGui::Button("stop"))
-                audio.stop();
+                Audio::Play(song);
+
+            ImGui::SameLine();
+            if (ImGui::Button("pause"))
+                Audio::Pause();
+            ImGui::SameLine();
+            if (ImGui::Button("state")){
+                std::cout << Audio::GetMediaLoadState() << endl;
+            }
             
             if (Audio::is_trackLoaded)
             {
-                time = audio.get_time();
+                time = Audio::GetMediaTimeMs();
                 old_time = time;
-                length = audio.get_duration();
-            }
-
-            ImGui::SliderInt("track", &time, 0, length);
-            if (length > 0)
-            {
-                ImGui::Checkbox("Item metadata", &statsWindow);
+                length = Audio::GetMediaDurationMs();
             }
             
-            if (old_time != time) audio.update_time(time);
+            ImGui::SliderInt("track", &time, 0, length);
+            
+            if (length > 0)
+            {   
+                int volume = Audio::GetVolume();
+                int old_volume = volume;
+                ImGui::SliderInt("volume", &volume, 0, 100);
+                ImGui::Checkbox("Item metadata", &statsWindow);
+                if (old_volume != volume) Audio::SetVolume(volume);
+            }
+            
+            if (old_time != time) Audio::SetMediaTimeMs(time);
 
             ImGui::End();
         }
         
         if (statsWindow)
         {   
-            int volume = audio.get_volume();
-            int old_volume = volume;
+            ImGui::Begin("stats", &statsWindow);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
+            ImGui::Text("name: %s", Audio::GetMediaName());
+            ImGui::Text("duration: %im%i", Audio::MinFromMilli(length),Audio::SecFromMilli(length));
 
-            ImGui::Begin("Stats", &statsWindow);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
-            ImGui::Text("name: %c", audio.get_name());
-            ImGui::Text("duration: %im%i", audio.minFromMilli(length),audio.secFromMilli(length));
-
-            ImGui::SliderInt("volume", &volume, 0, 100);
-
-            if (ImGui::Button("Close"))
-                statsWindow = false;
-
-            if (old_volume != volume) audio.set_volume(volume);
+            ImGui::Text("output device: %s", Audio::GetAudioDeviceInfo());
 
             ImGui::Text("%.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
+
             ImGui::End();
         }
 

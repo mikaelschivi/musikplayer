@@ -8,26 +8,29 @@ libvlc_media_player_t* mp;
 libvlc_event_manager_t* e;
 
 bool Audio::is_trackLoaded = false;
+const char* Audio::title;
 
-int Audio::secFromMilli(libvlc_time_t milliseconds)
+int Audio::SecFromMilli(libvlc_time_t milliseconds)
 {
     return (milliseconds / 1000) % 60;
 }
 
-int Audio::minFromMilli(libvlc_time_t milliseconds)
+int Audio::MinFromMilli(libvlc_time_t milliseconds)
 {
     return (milliseconds / (1000 * 60)) % 60;
 }
 
-int Audio::play(const char* filename)
+int Audio::Play(const char* filename)
 {
     if (is_trackLoaded && libvlc_media_player_is_playing (mp)) {
         printf("media already loaded.\n");
         return -1;
     }
+    
     m = libvlc_media_new_path(pEngine, filename);
     mp = libvlc_media_player_new_from_media (m);
     is_trackLoaded = true;
+    title = filename;
     printf("load media: ");
     printf("%s", (const char*)filename);
     printf("\nplaying\n");
@@ -35,36 +38,27 @@ int Audio::play(const char* filename)
     return libvlc_media_player_play(mp);
 }
 
-int Audio::stop()
+int Audio::GetMediaLoadState()
 {
-    is_trackLoaded = false;
-    if (!libvlc_media_player_is_playing(mp))
-    {
-        printf("no media playing in mediaplayer\n");
-        return 0;
-    }
-    libvlc_media_player_stop (mp);
-    libvlc_media_player_release (mp);
-    return 0;
+    if(!is_trackLoaded) 
+        return -1;
+
+    return libvlc_media_player_get_state(mp);
 }
 
-int Audio::pause()
+void Audio::Pause()
 {
-    if(!libvlc_media_player_can_pause (mp)) {
-        return 1;
-    }
     libvlc_media_player_pause (mp);
-    return 0;
 }
 
-int Audio::get_time()
+int Audio::GetMediaTimeMs()
 {
     if (is_trackLoaded)
         return libvlc_media_player_get_time (mp);
     return 0;
 }
 
-int Audio::get_duration()
+int Audio::GetMediaDurationMs()
 {
     if (is_trackLoaded)
         return libvlc_media_player_get_length (mp);
@@ -73,8 +67,8 @@ int Audio::get_duration()
     return 0;
 }
 
-int Audio::update_time(int newTime)
-{   if(get_duration() == -1)
+int Audio::SetMediaTimeMs(int newTime)
+{   if(GetMediaDurationMs() == -1)
         return 0;
 
     int oldtime = libvlc_media_player_get_time (mp);
@@ -86,23 +80,27 @@ int Audio::update_time(int newTime)
     return oldtime;
 }
 
-int Audio::get_name()
+const char* Audio::GetMediaName()
 {
-    return 'a';
+    return title;
 }
 
-int Audio::get_volume()
+int Audio::GetVolume()
 {
     return libvlc_audio_get_volume(mp);
 }
 
-int Audio::set_volume(int value)
+int Audio::SetVolume(int value)
 {
     return libvlc_audio_set_volume(mp, value);
 }
 
+char* Audio::GetAudioDeviceInfo()
+{
+    return libvlc_audio_output_device_get(mp);
+}
 
-void Audio::cleanup()
+void Audio::Cleanup()
 {
     libvlc_release(pEngine);
     libvlc_media_release(m);

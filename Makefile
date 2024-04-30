@@ -1,12 +1,14 @@
 IMGUI_DIR = ./imgui
-SOURCES = main.cpp gui.cpp ./headers/gui.h ./headers/libvlc.h libvlc.h
+HEADERS_DIR = ./headers
+SOURCES = main.cpp gui.cpp libvlc.cpp file.cpp
+SOURCES += $(HEADERS_DIR)/file.h $(HEADERS_DIR)/gui.h $(HEADERS_DIR)/libvlc.h
 SOURCES += $(IMGUI_DIR)/imgui.cpp $(IMGUI_DIR)/imgui_demo.cpp $(IMGUI_DIR)/imgui_draw.cpp $(IMGUI_DIR)/imgui_tables.cpp $(IMGUI_DIR)/imgui_widgets.cpp
 SOURCES += $(IMGUI_DIR)/backends/imgui_impl_sdl2.cpp $(IMGUI_DIR)/backends/imgui_impl_opengl2.cpp
 
 EXE = cool
 OBJS = $(addsuffix .o, $(basename $(notdir $(SOURCES))))
 
-CXXFLAGS = -std=c++11 -I$(IMGUI_DIR) -I$(IMGUI_DIR)/backends
+CXXFLAGS = -std=c++17 -I$(IMGUI_DIR) -I$(IMGUI_DIR)/backends
 CXXFLAGS += -g -Wall -Wformat -lvlc
 LIBS = 
 ECHO_UNAME =
