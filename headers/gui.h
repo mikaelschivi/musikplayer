@@ -18,10 +18,11 @@ class Imgui
 private:
 
 public:
-    SDL_WindowFlags window_flags;
-    SDL_Window* window;
-    SDL_GLContext gl_context;
+    static SDL_WindowFlags window_flags;
+    static SDL_Window* window;
+    static SDL_GLContext gl_context;
 
-    int run();
-    void Cleanup(SDL_Window* w, SDL_GLContext gl);
+    static int run();
+
+    static void Cleanup(SDL_Window* w, SDL_GLContext gl);
 };

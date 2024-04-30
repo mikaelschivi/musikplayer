@@ -5,9 +5,7 @@ using namespace std;
 
 int main()
 {   
-    // Imgui::run();
-    File::FetchNewMediaFiles();
-    File::PrintMediaListItemsInfo();
+    Imgui::run();
     printf("done\n");
     return 0;
 }

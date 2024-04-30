@@ -10,11 +10,6 @@ int Imgui::run()
         printf("Error: %s\n", SDL_GetError());
         return -1;
     }
-    if (window == nullptr) 
-    {
-        printf("Error: SDL_CreateWindow(): %s\n", SDL_GetError());
-        return -1;
-    }
     printf("SDL Setup: ok\n");
 
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
