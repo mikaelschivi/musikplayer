@@ -5,7 +5,7 @@ using namespace std;
 
 int main()
 {   
-    Imgui::run();
+    Gui::run();
     printf("done\n");
     return 0;
 }

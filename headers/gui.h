@@ -9,19 +9,22 @@
 #include <ostream>
 
 #include "libvlc.h"
+#include "file.h"
 
 #define WINDOW_W 640
 #define WINDOW_H 480
 
-class Imgui
+class Gui
 {
 private:
-
+    
 public:
     static SDL_WindowFlags window_flags;
     static SDL_Window* window;
     static SDL_GLContext gl_context;
 
+    static const char* selectedFile;
+    
     static int run();
 
     static void Cleanup(SDL_Window* w, SDL_GLContext gl);

@@ -1,7 +1,6 @@
 #include "./headers/file.h"
 
 using namespace std;
-namespace fs = std::filesystem;
 
 const char* File::path = PATH_TO_MUSIC_FILE;
 int File::mediaListSize = 0;
@@ -31,11 +30,11 @@ void File::FetchNewMediaFiles()
 
     for (const auto &entry : fs::directory_iterator(path)){   
         std::string name = entry.path().filename().string();
-        std::string fPath = entry.path().string();
-        std::string typeByExtension = entry.path().extension().string();
-        uint32_t size = entry.file_size();
-
         if (!CheckByNameIfInMediaList(name)){
+            std::string fPath = entry.path().string();
+            std::string typeByExtension = entry.path().extension().string();
+            uint32_t size = entry.file_size();
+
             Media newMedia;
             newMedia.filename = name;
             newMedia.filepath = fPath;
@@ -44,6 +43,10 @@ void File::FetchNewMediaFiles()
             AddIntoMediaList(newMedia);
         }
     }
+}
+
+int File::GetMediaListSize(){
+    return mediaListSize;
 }
 
 void File::PrintMediaListItemsInfo()

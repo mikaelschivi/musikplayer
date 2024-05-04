@@ -20,14 +20,18 @@ public:
 
     static int Play(const char* filename);
     static void Pause();
+    static void Stop();
 
     static int GetMediaLoadState();
+    static void CleanMediaFromMediaPlayer();
+    static const char* GetMediaLoadStateChar();
     static int GetMediaTimeMs();
     static int GetMediaDurationMs();
     static const char* GetMediaName();
     static char* GetAudioDeviceInfo();
     static int GetVolume();
-    
+
+   
     static int SetMediaTimeMs(int newTime);
     static int SetVolume(int value);
 

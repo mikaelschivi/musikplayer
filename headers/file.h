@@ -7,6 +7,8 @@
 
 #define PATH_TO_MUSIC_FILE "./music_sample"
 
+namespace fs = std::filesystem;
+
 typedef struct Media
 {
     std::string filename;
@@ -18,15 +20,15 @@ typedef struct Media
 class File
 {
 private:
-    static std::vector<Media> mediaList;
     static int mediaListSize;
-
     static bool CheckByNameIfInMediaList(std::string &name);
     static void AddIntoMediaList(Media media);
 
 public:
+    static std::vector<Media> mediaList;
     static const char* path;
 
+    static int GetMediaListSize();
     static void FetchNewMediaFiles();
     static void PrintMediaListItemsInfo();
 };

@@ -1,11 +1,14 @@
 #include "./headers/gui.h"
+#include "./headers/file.h"
 #include <cmath>
 
 using namespace std;
 
-int Imgui::run()
+const char* Gui::selectedFile = 0;
+
+int Gui::run()
 {   
-    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_GAMECONTROLLER) != 0)
+    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER ) != 0)
     {
         printf("Error: %s\n", SDL_GetError());
         return -1;
@@ -18,7 +21,8 @@ int Imgui::run()
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
     SDL_WindowFlags window_flags = (SDL_WindowFlags)
-                    (SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
+                    (SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI
+                    );
     
     SDL_Window* window = SDL_CreateWindow("musikplayer", 
                             SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 
@@ -30,26 +34,29 @@ int Imgui::run()
     }
     SDL_GLContext gl_context = SDL_GL_CreateContext(window);
     SDL_GL_MakeCurrent(window, gl_context);
-    SDL_GL_SetSwapInterval(1); // Enable vsync
+    SDL_GL_SetSwapInterval(1);
     printf("SDL_GL Setup: ok\n");
 
-    // IMGUI_CHECKVERSION();
+    IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO(); (void)io;
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;         // Enable Docking
+    // io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable; // windows shit
+    
     ImGui::StyleColorsDark();
     
+    ImGui_ImplSDL2_InitForOpenGL(window, gl_context);
+    printf("ImGui_ImplSDL: ok\n");
+    ImGui_ImplOpenGL2_Init();
+    printf("ImGui_ImplOpenGL2: ok\n");
+
     ImFont* font = io.Fonts->AddFontFromFileTTF("font/Roboto-Regular.ttf", 16.0f, nullptr);
     IM_ASSERT(font != nullptr);
     printf("ImGui: ok\n");
 
-    // Setup Platform/Renderer backends
-    ImGui_ImplSDL2_InitForOpenGL(window, gl_context);
-    ImGui_ImplOpenGL2_Init();
-    printf("ImGui_Impl: ok\n");
-
-    ImGuiWindowFlags w = ImGuiWindowFlags_NoTitleBar;
-    w = w | ImGuiWindowFlags_NoResize;
+    ImGuiWindowFlags w = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoTitleBar;
+    // w = w | ImGuiWindowFlags_NoResize;
 
     bool statsWindow = false;
     
@@ -70,24 +77,69 @@ int Imgui::run()
         ImGui_ImplOpenGL2_NewFrame();
         ImGui_ImplSDL2_NewFrame();
         ImGui::NewFrame();
-        // 2. Show a simple window that we create ourselves. We use a Begin/End pair to create a named window.
+        
+        {
+            ImGui::Begin("file", NULL, w);
+                File::FetchNewMediaFiles();
+                
+                ImGui::PushID("set1");
+                ImGui::PushStyleColor(ImGuiCol_FrameBg, (ImVec4)ImColor::HSV(0.0f, 0.0f, 63.0f, (0.83/255.0)*10 ));
+
+                static int listSize = File::GetMediaListSize();
+                ImGui::Text("Files in ./music_sample");
+
+                ImGui::SetNextWindowSizeConstraints(ImVec2(0.0f, ImGui::GetTextLineHeightWithSpacing() * 10),
+                                                    ImVec2(FLT_MAX, ImGui::GetTextLineHeightWithSpacing() * 10));
+
+                ImGui::BeginChild("##Files", ImVec2(0, 0), ImGuiChildFlags_Border);
+                {
+                    ImGui::BeginListBox("##Fetched files listing", ImVec2(-FLT_MIN, 5.25 * ImGui::GetTextLineHeightWithSpacing()));
+                    for (int i = 0; i < listSize; i++)
+                    {
+                        const char* filename = File::mediaList[i].filename.c_str();
+                        static int selected = -1;
+                        if (ImGui::Selectable(filename, selected == i)) {
+                            selected = i;
+                            assert(listSize > 0);
+                            if (Gui::selectedFile != filename)
+                            {
+                                Gui::selectedFile = filename;
+                                ImGui::SetItemDefaultFocus();
+                            } 
+                        }
+                    }
+                    ImGui::EndListBox();
+                }
+                ImGui::EndChild();
+                ImGui::Text("testboy");
+                ImGui::PopStyleColor();
+                ImGui::PopID();
+            ImGui::End();
+        }
+
         int time = 0;
         int old_time = time;
         int length = 0;
-        const char* song = "music_sample/techno.mp3";
+        std::string filePath = "./music_sample/";
         {   
             ImGui::Begin("media", NULL, w);
+            ImGui::Text("song: %s", Gui::selectedFile);
             if (ImGui::Button("play"))
-                Audio::Play(song);
+            {   
+                if(selectedFile)
+                    Audio::Play( (filePath + (std::string) Gui::selectedFile).c_str() );
+            }
 
             ImGui::SameLine();
             if (ImGui::Button("pause"))
                 Audio::Pause();
             ImGui::SameLine();
-            if (ImGui::Button("state")){
-                std::cout << Audio::GetMediaLoadState() << endl;
+            if (ImGui::Button("stop")) 
+            {
+                Audio::Stop();
+                Gui::selectedFile = 0;
             }
-            
+
             if (Audio::is_trackLoaded)
             {
                 time = Audio::GetMediaTimeMs();
@@ -113,14 +165,14 @@ int Imgui::run()
         
         if (statsWindow)
         {   
-            ImGui::Begin("stats", &statsWindow);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
+            ImGui::Begin("metadata", &statsWindow);
+            
             ImGui::Text("name: %s", Audio::GetMediaName());
-            ImGui::Text("duration: %im%i", Audio::MinFromMilli(length),Audio::SecFromMilli(length));
-
+            ImGui::Text("duration: %im%is", Audio::MinFromMilli(length),Audio::SecFromMilli(length));
+            ImGui::Text("state: %s", Audio::GetMediaLoadStateChar());
             ImGui::Text("output device: %s", Audio::GetAudioDeviceInfo());
-
             ImGui::Text("%.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
-
+    
             ImGui::End();
         }
 
@@ -134,12 +186,12 @@ int Imgui::run()
         ImGui_ImplOpenGL2_RenderDrawData(ImGui::GetDrawData());
         SDL_GL_SwapWindow(window);
     }
-    Cleanup(window, GL_TERMINATE_SEQUENCE_COMMAND_NV);
+    Cleanup(window, gl_context);
 
     return 0;
 }
 
-void Imgui::Cleanup(SDL_Window* w, SDL_GLContext gl)
+void Gui::Cleanup(SDL_Window* w, SDL_GLContext gl)
 {
     ImGui_ImplOpenGL2_Shutdown();
     ImGui_ImplSDL2_Shutdown();

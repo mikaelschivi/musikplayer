@@ -23,6 +23,13 @@ int Audio::MinFromMilli(libvlc_time_t milliseconds)
 int Audio::Play(const char* filename)
 {
     if (is_trackLoaded && libvlc_media_player_is_playing (mp)) {
+        if (filename != title){
+            CleanMediaFromMediaPlayer();
+
+            m = libvlc_media_new_path(pEngine, filename);
+            mp = libvlc_media_player_new_from_media (m);
+            return libvlc_media_player_play(mp);
+        }
         printf("media already loaded.\n");
         return -1;
     }
@@ -31,19 +38,41 @@ int Audio::Play(const char* filename)
     mp = libvlc_media_player_new_from_media (m);
     is_trackLoaded = true;
     title = filename;
-    printf("load media: ");
-    printf("%s", (const char*)filename);
-    printf("\nplaying\n");
+    // printf("load media: ");
+    // printf("%s", (const char*)filename);
+    // printf("\nplaying\n");
 
     return libvlc_media_player_play(mp);
+}
+
+void Audio::Stop(){
+    if (!is_trackLoaded)
+        return;
+    CleanMediaFromMediaPlayer();
+    is_trackLoaded = false;
+}
+
+void Audio::CleanMediaFromMediaPlayer()
+{
+    libvlc_media_release(m);
+    libvlc_media_player_release (mp);
 }
 
 int Audio::GetMediaLoadState()
 {
     if(!is_trackLoaded) 
         return -1;
-
     return libvlc_media_player_get_state(mp);
+}
+
+const char* Audio::GetMediaLoadStateChar()
+{
+    int state = Audio::GetMediaLoadState();
+    const char* St[] = {"libvlc_NothingSpecial", "libvlc_Opening", "libvlc_Buffering", "libvlc_Playing", "libvlc_Paused",
+                    "libvlc_Stopped", "libvlc_Ended", "libvlc_Error"};
+    if (state > -1)
+        return St[state];
+    return "No track loaded";
 }
 
 void Audio::Pause()
@@ -103,6 +132,8 @@ char* Audio::GetAudioDeviceInfo()
 void Audio::Cleanup()
 {
     libvlc_release(pEngine);
+    if(!is_trackLoaded)
+        return
     libvlc_media_release(m);
     libvlc_media_player_release (mp);
 }
