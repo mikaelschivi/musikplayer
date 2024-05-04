@@ -4,4 +4,4 @@ app
 imgui.ini
 cool
 *.o
-# music_sample
+music_sample/n_*
