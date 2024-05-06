@@ -8,7 +8,7 @@ libvlc_media_player_t* mp;
 libvlc_event_manager_t* e;
 
 bool Audio::is_trackLoaded = false;
-const char* Audio::title;
+std::string Audio::title = "";
 
 int Audio::SecFromMilli(libvlc_time_t milliseconds)
 {
@@ -23,11 +23,12 @@ int Audio::MinFromMilli(libvlc_time_t milliseconds)
 int Audio::Play(const char* filename)
 {
     if (is_trackLoaded && libvlc_media_player_is_playing (mp)) {
-        if (filename != title){
+        if (filename != title) {
             CleanMediaFromMediaPlayer();
 
             m = libvlc_media_new_path(pEngine, filename);
             mp = libvlc_media_player_new_from_media (m);
+            title = filename;
             return libvlc_media_player_play(mp);
         }
         printf("media already loaded.\n");
@@ -38,14 +39,12 @@ int Audio::Play(const char* filename)
     mp = libvlc_media_player_new_from_media (m);
     is_trackLoaded = true;
     title = filename;
-    // printf("load media: ");
-    // printf("%s", (const char*)filename);
-    // printf("\nplaying\n");
 
     return libvlc_media_player_play(mp);
 }
 
-void Audio::Stop(){
+void Audio::Stop()
+{
     if (!is_trackLoaded)
         return;
     CleanMediaFromMediaPlayer();
@@ -97,19 +96,19 @@ int Audio::GetMediaDurationMs()
 }
 
 int Audio::SetMediaTimeMs(int newTime)
-{   if(GetMediaDurationMs() == -1)
+{
+    if(GetMediaDurationMs() == -1)
         return 0;
 
     int oldtime = libvlc_media_player_get_time (mp);
 
-    if (newTime != oldtime && oldtime != -1)
-    {
+    if (newTime != oldtime && oldtime != -1) {
         libvlc_media_player_set_time (mp, newTime);
     }
     return oldtime;
 }
 
-const char* Audio::GetMediaName()
+std::string Audio::GetMediaName()
 {
     return title;
 }
@@ -132,8 +131,10 @@ char* Audio::GetAudioDeviceInfo()
 void Audio::Cleanup()
 {
     libvlc_release(pEngine);
+ 
     if(!is_trackLoaded)
-        return
+        return;
+ 
     libvlc_media_release(m);
     libvlc_media_player_release (mp);
 }

@@ -2,17 +2,18 @@
 
 #include "../imgui/imgui.h"
 #include "../imgui/backends/imgui_impl_sdl2.h"
-#include "../imgui/backends/imgui_impl_opengl2.h"
+#include "../imgui/backends/imgui_impl_opengl3.h"
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_opengl.h>
 #include <iostream>
 #include <ostream>
+#include <random>
 
 #include "libvlc.h"
 #include "file.h"
 
-#define WINDOW_W 640
-#define WINDOW_H 480
+#define WINDOW_W 800
+#define WINDOW_H 600
 
 class Gui
 {

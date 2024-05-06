@@ -4,12 +4,6 @@
 #include <iostream>
 #include <ostream>
 
-// class Media
-// {
-// public:
-//     const char* GetMediaName();
-// };
-
 class Audio
 {
 public:
@@ -27,7 +21,7 @@ public:
     static const char* GetMediaLoadStateChar();
     static int GetMediaTimeMs();
     static int GetMediaDurationMs();
-    static const char* GetMediaName();
+    static std::string GetMediaName();
     static char* GetAudioDeviceInfo();
     static int GetVolume();
 
@@ -36,7 +30,8 @@ public:
     static int SetVolume(int value);
 
     static void Cleanup();
+
 private:
-    static const char* title;
+    static std::string title;
 
 };

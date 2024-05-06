@@ -1,7 +1,6 @@
 .vscode
 things
-app
 imgui.ini
 cool
-*.o
+OBJ
 music_sample/n_*

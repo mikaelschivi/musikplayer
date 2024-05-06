@@ -10,7 +10,7 @@ bool File:: CheckByNameIfInMediaList(std::string &name)
 {   
     if (mediaListSize == 0) return false;
 
-    for (auto& item : mediaList){
+    for (auto& item : mediaList) {
         if (!item.filename.empty() && name == item.filename){
             return true;
         }
@@ -26,11 +26,13 @@ void File::AddIntoMediaList(Media media)
 
 void File::FetchNewMediaFiles()
 {
-    if (mediaList.empty()) mediaListSize = 0;
+    if (mediaList.empty())
+        mediaListSize = 0;
 
-    for (const auto &entry : fs::directory_iterator(path)){   
+    for (const auto &entry : fs::directory_iterator(path)) {   
         std::string name = entry.path().filename().string();
-        if (!CheckByNameIfInMediaList(name)){
+        
+        if (!CheckByNameIfInMediaList(name)) {
             std::string fPath = entry.path().string();
             std::string typeByExtension = entry.path().extension().string();
             uint32_t size = entry.file_size();
@@ -45,14 +47,15 @@ void File::FetchNewMediaFiles()
     }
 }
 
-int File::GetMediaListSize(){
+int File::GetMediaListSize()
+{
     return mediaListSize;
 }
 
 void File::PrintMediaListItemsInfo()
 {
-    if (!mediaList.empty()){
-        for (const auto& media : mediaList){
+    if (!mediaList.empty()) {
+        for (const auto& media : mediaList) {
             std::cout << media.filename << endl;
             std::cout << media.filepath << endl;
             std::cout << media.fileType << endl;
